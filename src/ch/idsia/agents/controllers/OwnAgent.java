@@ -52,10 +52,13 @@ public OwnAgent()
 public void reset()
 {
     action = new boolean[Environment.numberOfKeys];
+    action[Mario.KEY_RIGHT] = true;
 }
 
 public boolean[] getAction()
 {
+	
+	
     return action;
 }
 }
