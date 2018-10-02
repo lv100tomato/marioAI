@@ -42,7 +42,7 @@ public static void main(String[] args)
 {
     final MarioAIOptions marioAIOptions = new MarioAIOptions(args);
 
-    final Agent agent = new ForwardAgent();
+    final Agent agent = new ForwardJumpingAgent();
     marioAIOptions.setAgent(agent);
     
     int seed = 99;
