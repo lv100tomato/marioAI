@@ -85,14 +85,27 @@ public boolean[] getAction()
 {
 	if(!isMarioAbleToJump)++trueJumpCounter;
 	else trueJumpCounter = 0;
-	if(isObstacle(marioEgoRow, marioEgoCol + 1) || 
+	if(isObstacle(marioEgoRow, marioEgoCol + 1) || isObstacle(marioEgoRow - 1, marioEgoCol + 1) || 
 			getEnemiesCellValue(marioEgoRow, marioEgoCol + 2) != Sprite.KIND_NONE
-			|| getEnemiesCellValue(marioEgoRow, marioEgoCol + 1) != Sprite.KIND_NONE){
+			|| getEnemiesCellValue(marioEgoRow, marioEgoCol + 1) != Sprite.KIND_NONE
+			|| (isHole(marioEgoRow, marioEgoCol + 1) && !isHole(marioEgoRow, marioEgoCol))){
 		action[Mario.KEY_JUMP] = isMarioAbleToJump || !isMarioOnGround;
 	}
 	jumpWatcher = (oldJump != action[Mario.KEY_JUMP]);
 	
-	action[Mario.KEY_UP] = trueJumpCounter > 8;	//MAX JUMP
+	if(isHole(marioEgoRow, marioEgoCol + 1) && !isHole(marioEgoRow, marioEgoCol) && trueJumpCounter > 8 ) {
+		action[Mario.KEY_RIGHT] = false;
+		action[Mario.KEY_LEFT] = true;
+		action[Mario.KEY_SPEED] = true;
+	}else {
+		action[Mario.KEY_RIGHT] = true;
+		action[Mario.KEY_LEFT] = false;
+		action[Mario.KEY_SPEED] = true;
+	}
+	
+	
+	
+	//action[Mario.KEY_UP] = trueJumpCounter > 8;	//MAX JUMP
 	
 	oldJump = action[Mario.KEY_JUMP];
     return action;

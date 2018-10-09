@@ -32,6 +32,7 @@ import ch.idsia.tools.MarioAIOptions;
 import ch.idsia.agents.Agent;
 import ch.idsia.agents.controllers.OwnAgent;
 
+import java.util.Random;
 /**
  * Created by IntelliJ IDEA. User: Sergey Karakovskiy, sergey at idsia dot ch Date: Mar 17, 2010 Time: 8:28:00 AM
  * Package: ch.idsia.scenarios
@@ -44,12 +45,23 @@ public static void main(String[] args)
 
     final Agent agent = new OwnAgent();
     marioAIOptions.setAgent(agent);
+    Random R = new Random();
     
     marioAIOptions.setArgs("-lca off -lhs off -ld 1 -ls 0 -le off");
-    
+    /*
+    for(int i = 0; i<10; ++i) {
+    	marioAIOptions.setArgs("-lca off -lhs off -ld 1 -ls 0 -le off");
+    	//marioAIOptions.setLevelRandSeed(R.nextInt());
+        final BasicTask basicTask = new BasicTask(marioAIOptions);
+        basicTask.setOptionsAndReset(marioAIOptions);
+        basicTask.doEpisodes(1,true,1);
+    }
+    /**/
+    /**/
     final BasicTask basicTask = new BasicTask(marioAIOptions);
     basicTask.setOptionsAndReset(marioAIOptions);
     basicTask.doEpisodes(1,true,1);
+    /**/
     System.exit(0);
 }
 
