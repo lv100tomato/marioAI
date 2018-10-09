@@ -25,44 +25,42 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-package ch.idsia.scenarios;
+package ch.idsia.agents.controllers;
 
-import ch.idsia.benchmark.tasks.BasicTask;
-import ch.idsia.tools.MarioAIOptions;
 import ch.idsia.agents.Agent;
-import ch.idsia.agents.controllers.OwnAgent2;
-
+import ch.idsia.benchmark.mario.engine.sprites.Mario;
+import ch.idsia.benchmark.mario.environments.Environment;
 import java.util.Random;
-/**
- * Created by IntelliJ IDEA. User: Sergey Karakovskiy, sergey at idsia dot ch Date: Mar 17, 2010 Time: 8:28:00 AM
- * Package: ch.idsia.scenarios
- */
-public final class MainTask3
-{
-public static void main(String[] args)
-{
-    final MarioAIOptions marioAIOptions = new MarioAIOptions(args);
 
-    final Agent agent = new OwnAgent2();
-    marioAIOptions.setAgent(agent);
-    Random R = new Random();
-    
-    marioAIOptions.setArgs("-lhs off -ltb on -lg off -lb off -ld 1 -ls 0 -le g");
-    /*
-    for(int i = 0; i<10; ++i) {
-        marioAIOptions.setArgs("-lhs off -ltb on -lg off -lb off -ld 1 -ls 0 -le g");
-    	marioAIOptions.setLevelRandSeed(R.nextInt());
-        final BasicTask basicTask = new BasicTask(marioAIOptions);
-        basicTask.setOptionsAndReset(marioAIOptions);
-        basicTask.doEpisodes(1,true,1);
-    }
-    /**/
-    /**/
-    final BasicTask basicTask = new BasicTask(marioAIOptions);
-    basicTask.setOptionsAndReset(marioAIOptions);
-    basicTask.doEpisodes(1,true,1);
-    System.exit(0);
-    /**/
+/**
+ * Created by IntelliJ IDEA.
+ * User: Sergey Karakovskiy, sergey.karakovskiy@gmail.com
+ * Date: Apr 8, 2009
+ * Time: 4:03:46 AM
+ */
+
+public class OwnAgent3 extends BasicMarioAIAgent implements Agent
+{
+int trueJumpCounter = 0;
+int trueSpeedCounter = 0;
+
+public OwnAgent3()
+{
+    super("OwnAgent");
+    reset();
 }
 
+public void reset()
+{
+    action = new boolean[Environment.numberOfKeys];
+    action[Mario.KEY_RIGHT] = true;
+}
+
+public boolean[] getAction()
+{
+    Random R = new Random();
+    action[Mario.KEY_DOWN] = R.nextBoolean();
+	
+    return action;
+}
 }

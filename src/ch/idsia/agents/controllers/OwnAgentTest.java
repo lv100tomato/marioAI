@@ -27,12 +27,13 @@
 
 package ch.idsia.agents.controllers;
 
+import java.util.Random;
+
 import ch.idsia.agents.Agent;
 import ch.idsia.benchmark.mario.engine.GeneralizerLevelScene;
 import ch.idsia.benchmark.mario.engine.sprites.Mario;
 import ch.idsia.benchmark.mario.engine.sprites.Sprite;
 import ch.idsia.benchmark.mario.environments.Environment;
-import java.util.Random;
 
 /**
  * Created by IntelliJ IDEA.
@@ -41,15 +42,14 @@ import java.util.Random;
  * Time: 4:03:46 AM
  */
 
-public class OwnAgent2 extends BasicMarioAIAgent implements Agent
+public class OwnAgentTest extends BasicMarioAIAgent implements Agent
 {
 int trueJumpCounter = 0;
 int trueSpeedCounter = 0;
 boolean jumpWatcher = false;
 boolean oldJump = false;
-boolean oldSpeed = false;
 
-public OwnAgent2()
+public OwnAgentTest()
 {
     super("OwnAgent");
     reset();
@@ -59,12 +59,10 @@ public void reset()
 {
     action = new boolean[Environment.numberOfKeys];
     action[Mario.KEY_RIGHT] = true;
-    trueJumpCounter = 0;
-    trueSpeedCounter = 0;
-    jumpWatcher = false;
-    oldJump = false;
-    oldSpeed = false;
-    
+    int trueJumpCounter = 0;
+    int trueSpeedCounter = 0;
+    boolean jumpWatcher = false;
+    boolean oldJump = false;
 }
 
 public boolean isObstacle(int r, int c){
@@ -77,66 +75,51 @@ public boolean isObstacle(int r, int c){
 public boolean isHole(int r, int c) {
 	boolean out = true;
 	for(int i = r; i < 19 ;++i) {
-	out = out && (getReceptiveFieldCellValue(i, c) == GeneralizerLevelScene.BRICK
-			   || getReceptiveFieldCellValue(i, c) == 0);
+		out = out && (getReceptiveFieldCellValue(i, c) == GeneralizerLevelScene.BRICK
+				   || getReceptiveFieldCellValue(i, c) == 0);
 	}
 	return out;
 }
 
-public boolean enemySearch(int r, int c) {
-		boolean out = false;
-		for(int i = r - 3; i < r + 3 ;++i) {
-			out = out || (isEnemy(i,c) && !isObstacle(i,c));
-		}
-		return out;
-}
-
-public boolean isEnemy(int r,int c) {
-	return getEnemiesCellValue(r, c) != Sprite.KIND_NONE; 
-}
-
 public boolean[] getAction()
 {
-	if(!isMarioAbleToJump && !isMarioOnGround)++trueJumpCounter;
-	else trueJumpCounter = 0;
 	/*
+	if(!isMarioAbleToJump)++trueJumpCounter;
+	else trueJumpCounter = 0;
 	if(isObstacle(marioEgoRow, marioEgoCol + 1) || isObstacle(marioEgoRow - 1, marioEgoCol + 1) || 
-			((isEnemy(marioEgoRow, marioEgoCol + 1) || isEnemy(marioEgoRow - 1, marioEgoCol + 1))&& marioMode != 2) || 
 			getEnemiesCellValue(marioEgoRow, marioEgoCol + 2) != Sprite.KIND_NONE
 			|| getEnemiesCellValue(marioEgoRow, marioEgoCol + 1) != Sprite.KIND_NONE
 			|| (isHole(marioEgoRow, marioEgoCol + 1) && !isHole(marioEgoRow, marioEgoCol))){
 		action[Mario.KEY_JUMP] = isMarioAbleToJump || !isMarioOnGround;
 	}
-	/**/
-	if(isObstacle(marioEgoRow, marioEgoCol + 1) || isObstacle(marioEgoRow - 1, marioEgoCol + 1) || 
-			isObstacle(marioEgoRow, marioEgoCol + 2) || isObstacle(marioEgoRow - 1, marioEgoCol + 2) || isObstacle(marioEgoRow - 2, marioEgoCol + 2) || 
-			isObstacle(marioEgoRow, marioEgoCol + 3) || isObstacle(marioEgoRow - 1, marioEgoCol + 3) || isObstacle(marioEgoRow - 2, marioEgoCol + 3) || 
-			((isEnemy(marioEgoRow, marioEgoCol + 1) || isEnemy(marioEgoRow - 1, marioEgoCol + 1) || isEnemy(marioEgoRow - 1, marioEgoCol + 2) ||
-					isEnemy(marioEgoRow, marioEgoCol + 2) || isEnemy(marioEgoRow - 1, marioEgoCol + 2)|| isEnemy(marioEgoRow - 1, marioEgoCol + 3))&& (!isMarioAbleToShoot || marioMode != 2)) || 
-			/* getEnemiesCellValue(marioEgoRow, marioEgoCol + 2) != Sprite.KIND_NONE
-			|| getEnemiesCellValue(marioEgoRow, marioEgoCol + 1) != Sprite.KIND_NONE
-			||/**/ (isHole(marioEgoRow, marioEgoCol + 1) && !isHole(marioEgoRow, marioEgoCol))){
-		action[Mario.KEY_JUMP] = isMarioAbleToJump || !isMarioOnGround;
-	}
 	
-	jumpWatcher = (oldJump != action[Mario.KEY_JUMP]);
-	
-	action[Mario.KEY_SPEED] = false;
-	
-	if(trueJumpCounter > 8)action[Mario.KEY_UP] = true;
-	else action[Mario.KEY_UP] = false;
-	
-	if((enemySearch(marioEgoRow, marioEgoCol + 1) || enemySearch(marioEgoRow, marioEgoCol + 2))/* && !enemySearch(marioEgoRow, marioEgoCol)/**/ && trueJumpCounter > 8 ) {
+	if(isHole(marioEgoRow, marioEgoCol + 1) && !isHole(marioEgoRow, marioEgoCol) && trueJumpCounter > 8 ) {
 		action[Mario.KEY_RIGHT] = false;
 		action[Mario.KEY_LEFT] = true;
+		action[Mario.KEY_SPEED] = true;
 	}else {
 		action[Mario.KEY_RIGHT] = true;
 		action[Mario.KEY_LEFT] = false;
+		action[Mario.KEY_SPEED] = true;
 	}
-	if(isMarioAbleToShoot&& marioMode ==2 && !oldSpeed && (isEnemy(marioEgoRow, marioEgoCol + 1)|| isEnemy(marioEgoRow, marioEgoCol + 2)|| isEnemy(marioEgoRow, marioEgoCol + 3)
-			|| isEnemy(marioEgoRow +1, marioEgoCol + 1)|| isEnemy(marioEgoRow+1, marioEgoCol + 2)|| isEnemy(marioEgoRow+1, marioEgoCol + 3)))action[Mario.KEY_SPEED] = true;
 	
-	oldSpeed = action[Mario.KEY_SPEED];
+	/**/
+	if(trueSpeedCounter>1 || !isMarioAbleToJump) {
+		action[Mario.KEY_RIGHT]=false;
+	}else {
+		action[Mario.KEY_RIGHT]=true;
+	}
+	if(action[Mario.KEY_RIGHT] == true)trueSpeedCounter+= 6;
+	else --trueSpeedCounter;
+	
+	jumpWatcher = (oldJump != action[Mario.KEY_JUMP]);
+	
+	if(isObstacle(marioEgoRow, marioEgoCol)) {
+		action[Mario.KEY_UP] = true;
+		action[Mario.KEY_JUMP] = true;
+	}else {
+		action[Mario.KEY_UP] = false;
+	}
 	
 	//action[Mario.KEY_UP] = trueJumpCounter > 8;	//MAX JUMP
 	
