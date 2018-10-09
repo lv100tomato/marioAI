@@ -27,8 +27,12 @@
 
 package ch.idsia.agents.controllers;
 
+import java.util.Random;
+
 import ch.idsia.agents.Agent;
+import ch.idsia.benchmark.mario.engine.GeneralizerLevelScene;
 import ch.idsia.benchmark.mario.engine.sprites.Mario;
+import ch.idsia.benchmark.mario.engine.sprites.Sprite;
 import ch.idsia.benchmark.mario.environments.Environment;
 
 /**
@@ -42,6 +46,8 @@ public class OwnAgent extends BasicMarioAIAgent implements Agent
 {
 int trueJumpCounter = 0;
 int trueSpeedCounter = 0;
+boolean jumpWatcher = false;
+boolean oldJump = false;
 
 public OwnAgent()
 {
@@ -53,12 +59,42 @@ public void reset()
 {
     action = new boolean[Environment.numberOfKeys];
     action[Mario.KEY_RIGHT] = true;
+    int trueJumpCounter = 0;
+    int trueSpeedCounter = 0;
+    boolean jumpWatcher = false;
+    boolean oldJump = false;
+}
+
+public boolean isObstacle(int r, int c){
+	return getReceptiveFieldCellValue(r, c)==GeneralizerLevelScene.BRICK
+			|| getReceptiveFieldCellValue(r, c)==GeneralizerLevelScene.BORDER_CANNOT_PASS_THROUGH
+			|| getReceptiveFieldCellValue(r, c)==GeneralizerLevelScene.FLOWER_POT_OR_CANNON
+			|| getReceptiveFieldCellValue(r, c)==GeneralizerLevelScene.LADDER;
+}
+
+public boolean isHole(int r, int c) {
+	boolean out = true;
+	for(int i = r; i < 19 ;++i) {
+		out = out && (getReceptiveFieldCellValue(i, c) == GeneralizerLevelScene.BRICK
+				   || getReceptiveFieldCellValue(i, c) == 0);
+	}
+	return out;
 }
 
 public boolean[] getAction()
 {
+	if(!isMarioAbleToJump)++trueJumpCounter;
+	else trueJumpCounter = 0;
+	if(isObstacle(marioEgoRow, marioEgoCol + 1) || 
+			getEnemiesCellValue(marioEgoRow, marioEgoCol + 2) != Sprite.KIND_NONE
+			|| getEnemiesCellValue(marioEgoRow, marioEgoCol + 1) != Sprite.KIND_NONE){
+		action[Mario.KEY_JUMP] = isMarioAbleToJump || !isMarioOnGround;
+	}
+	jumpWatcher = (oldJump != action[Mario.KEY_JUMP]);
 	
+	action[Mario.KEY_UP] = trueJumpCounter > 8;	//MAX JUMP
 	
+	oldJump = action[Mario.KEY_JUMP];
     return action;
 }
 }
