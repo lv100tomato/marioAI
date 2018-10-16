@@ -59,10 +59,10 @@ public void reset()
 {
     action = new boolean[Environment.numberOfKeys];
     action[Mario.KEY_RIGHT] = true;
-    int trueJumpCounter = 0;
-    int trueSpeedCounter = 0;
-    boolean jumpWatcher = false;
-    boolean oldJump = false;
+    trueJumpCounter = 0;
+    trueSpeedCounter = 0;
+    jumpWatcher = false;
+    oldJump = false;
 }
 
 public boolean isObstacle(int r, int c){
