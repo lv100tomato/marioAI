@@ -59,6 +59,7 @@ public void reset()
 {
     action = new boolean[Environment.numberOfKeys];
     action[Mario.KEY_RIGHT] = true;
+    action[Mario.KEY_SPEED] = true;
     trueJumpCounter = 0;
     trueSpeedCounter = 0;
     jumpWatcher = false;
@@ -96,11 +97,9 @@ public boolean[] getAction()
 	if(isHole(marioEgoRow, marioEgoCol + 1) && !isHole(marioEgoRow, marioEgoCol) && trueJumpCounter > 8 ) {
 		action[Mario.KEY_RIGHT] = false;
 		action[Mario.KEY_LEFT] = true;
-		action[Mario.KEY_SPEED] = true;
 	}else {
 		action[Mario.KEY_RIGHT] = true;
 		action[Mario.KEY_LEFT] = false;
-		action[Mario.KEY_SPEED] = true;
 	}
 	
 	
