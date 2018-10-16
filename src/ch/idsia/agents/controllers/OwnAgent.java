@@ -75,7 +75,7 @@ public boolean isObstacle(int r, int c){
 public boolean isHole(int r, int c) {
 	boolean out = true;
 	for(int i = r; i < 19 ;++i) {
-		out = out && (getReceptiveFieldCellValue(i, c) == GeneralizerLevelScene.BRICK
+		out = out && (getReceptiveFieldCellValue(i, c) == GeneralizerLevelScene.COIN_ANIM
 				   || getReceptiveFieldCellValue(i, c) == 0);
 	}
 	return out;
