@@ -72,6 +72,7 @@ public class OwnMCAgent extends BasicMarioAIAgent implements Agent{
 	public static int oldDistance;
 	public static int topDistance;
 	public static boolean firstStep = false;
+	public static boolean deltaStep = false;
 	
 	public static void setMode(boolean b){
 		mode = b;
@@ -287,9 +288,11 @@ public class OwnMCAgent extends BasicMarioAIAgent implements Agent{
 			action[Mario.KEY_DOWN] = true;
 	}
 	public boolean[] getAction(){
+		deltaStep=firstStep;
 		firstStep=firstStep||isMarioOnGround;
 		direction = feelDirection(map);
 		map = feelMap(map);
+		updateCoin();
 		
 		detectObstacle();
 		detectCliff();
@@ -315,7 +318,7 @@ public class OwnMCAgent extends BasicMarioAIAgent implements Agent{
 		//if(action[Mario.KEY_RIGHT])++reward;
 		reward2 = distancePassedCells;
 		if(!firstStep)reward=distancePassedCells;
-		/**/
+		/*
 		if(direction[3])++reward;
 		if(direction[2])--reward;
 		/**/
@@ -403,5 +406,65 @@ public class OwnMCAgent extends BasicMarioAIAgent implements Agent{
 			}
 		}
 		return maps;
+	}
+	
+	public void updateCoin() {
+		if(!firstStep)return;
+		if(!deltaStep) {
+			generateCoin();
+			return;
+		}
+		boolean[][] oldReCoin = new boolean[37][37];
+		for(int i=0;i<37;++i) {
+			for(int j=0;j<37;++j) {
+				oldReCoin[i][j]=reCoin[i][j];
+			}
+		}
+		for(int d=0;d<4;++d) {
+			if(direction[d]) {
+				for(int i=0;i<37;++i) {
+					for(int j=0;j<37;++j) {
+						switch(d){
+						case 0:
+							if(i==0) {
+								reCoin[i][j]=false;
+							}else {
+								reCoin[i][j]=oldReCoin[i-1][j];
+							}
+							break;
+						case 1:
+							if(i==36) {
+								reCoin[i][j]=false;
+							}else {
+								reCoin[i][j]=oldReCoin[i+1][j];
+							}
+							break;
+						case 2:
+							if(j==0) {
+								reCoin[i][j]=false;
+							}else {
+								reCoin[i][j]=oldReCoin[i][j-1];
+							}
+							break;
+						case 3:
+							if(j==36) {
+								reCoin[i][j]=false;
+							}else {
+								reCoin[i][j]=oldReCoin[i][j+1];
+							}
+							break;
+						}
+					}
+				}
+			}
+		}
+		if(reCoin[18][18]) {
+			generateCoin();
+			++reward;
+		}
+	}
+	
+	public void generateCoin() {
+		
 	}
 }
