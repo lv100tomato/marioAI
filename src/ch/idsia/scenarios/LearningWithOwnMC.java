@@ -19,7 +19,8 @@ import ch.idsia.agents.Agent;
 import ch.idsia.agents.LearningAgent;
 
 public class LearningWithOwnMC implements LearningAgent{
-	private Agent agent;
+	//private Agent agent;
+	private OwnMCAgent agent;
 	private String name = "LearningWithOwnMC";
 	//目標値(4096.0はステージの右端)
 	private float goal = 4096.0f;
@@ -89,7 +90,8 @@ public class LearningWithOwnMC implements LearningAgent{
 		/* 評価値(距離)をセット */
 		EvaluationInfo evaluationInfo = basicTask.getEvaluationInfo();
 		//報酬取得
-		float reward = evaluationInfo.distancePassedPhys;
+		//float reward = evaluationInfo.distancePassedPhys;
+		float reward = agent.reward/**/ - agent.reward2/**/;
 		System.out.println("報酬は" + reward);
 	}
 	//学習
@@ -119,9 +121,11 @@ public class LearningWithOwnMC implements LearningAgent{
 		/* 評価値(距離)をセット */
 		EvaluationInfo evaluationInfo = basicTask.getEvaluationInfo();
 		//報酬取得
-		float reward = evaluationInfo.distancePassedPhys;
+		//float reward = evaluationInfo.distancePassedPhys;
+		float reward = agent.reward;
 		//reward -= (evaluationInfo.marioStatus == 0) ? 1000 : 0;
 		System.out.println(reward);
+		System.out.println("      "+(reward/**/ - agent.reward2/**/));
 		//ベストスコアが出たら更新
 		if(reward > OwnMCAgent.bestScore){
 			OwnMCAgent.bestScore = reward;
@@ -137,7 +141,8 @@ public class LearningWithOwnMC implements LearningAgent{
 					OwnMCAgent.sumValue[key.getState()][key.getCliff()][key.getAbleToJump()][key.getAction()]
 							/ (float)OwnMCAgent.num[key.getState()][key.getCliff()][key.getAbleToJump()][key.getAction()];
 		}
-		return reward;
+		//return reward;
+		return evaluationInfo.distancePassedPhys;
 	}
 	//////////////////////////////ここからは必要なし//////////////////////////////
 	@Override

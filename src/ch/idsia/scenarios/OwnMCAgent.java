@@ -56,11 +56,35 @@ public class OwnMCAgent extends BasicMarioAIAgent implements Agent{
 	public static float[][][][] sumValue;
 	//ある状態である行動を取った回数
 	public static int[][][][] num;
+	
+	public static int reward = 0;
+	public static int reward2 = 0;
+	//マリオの周りの地図を保持
+	public static boolean[][][] map;
+	//報酬となるコインの位置
+	public static boolean[][] reCoin;
+	
+	//最初のフレームかどうか
+	public static boolean first = true;
+	//進んでいる方向
+	public static boolean[] direction;
+	
+	public static int oldDistance;
+	public static int topDistance;
+	public static boolean firstStep = false;
+	
 	public static void setMode(boolean b){
 		mode = b;
 	}
 	public static void ini(){
+		reward = 0;
+		reward2 = 0;
+		oldDistance = 0;
+		topDistance = 0;
+		firstStep=false;
+		
 		frameCounter = 0;
+		reward = 0;
 		selected.clear();
 		actions.clear();
 	}
@@ -116,6 +140,26 @@ public class OwnMCAgent extends BasicMarioAIAgent implements Agent{
 		}
 		actions = new ArrayList<Integer>();
 		best = new ArrayList<Integer>();
+		
+		map = new boolean[19][19][3];
+		for(int i=0;i<19;++i) {
+			for(int j=0;j<19;++j) {
+				map[i][j][0]=false;
+				map[i][j][1]=false;
+				map[i][j][2]=false;
+			}
+		}
+		reCoin = new boolean[37][37];
+		for(int i=0;i<37;++i) {
+			for(int j=0;j<37;++j) {
+				reCoin[i][j]=false;
+			}
+		}
+		direction = new boolean[4];
+		direction[0]=false;//上
+		direction[1]=false;//下
+		direction[2]=false;//左
+		direction[3]=false;//右
 	}
 	//行動価値関数を取得
 	public static float[][][][] getQ(){
@@ -136,7 +180,7 @@ public class OwnMCAgent extends BasicMarioAIAgent implements Agent{
 				state += (int)Math.pow(2,j);
 		}
 		for(int j = 0; j < width; ++j){
-			if(getReceptiveFieldCellValue(marioEgoRow + j - 1,marioEgoCol + 1) != 0)
+			if(getReceptiveFieldCellValue(marioEgoRow + j - 1,marioEgoCol + 1) != 0 && getReceptiveFieldCellValue(marioEgoRow + j - 1,marioEgoCol + 1) != 2)
 				state += (int)Math.pow(2,width + j);
 		}
 		for(int j = 0; j < width; ++j){
@@ -144,7 +188,7 @@ public class OwnMCAgent extends BasicMarioAIAgent implements Agent{
 				state += (int)Math.pow(2, 2 * width + j);
 		}
 		for(int j = 0; j < width; ++j){
-			if(getReceptiveFieldCellValue(marioEgoRow + j - 1,marioEgoCol + 2) != 0)
+			if(getReceptiveFieldCellValue(marioEgoRow + j - 1,marioEgoCol + 2) != 0 && getReceptiveFieldCellValue(marioEgoRow + j - 1,marioEgoCol + 2) != 2)
 				state += (int)Math.pow(2,3 * width + j);
 		}
 		if(isMarioOnGround)
@@ -243,6 +287,10 @@ public class OwnMCAgent extends BasicMarioAIAgent implements Agent{
 			action[Mario.KEY_DOWN] = true;
 	}
 	public boolean[] getAction(){
+		firstStep=firstStep||isMarioOnGround;
+		direction = feelDirection(map);
+		map = feelMap(map);
+		
 		detectObstacle();
 		detectCliff();
 		ableToJump = boolToInt(isMarioAbleToJump);
@@ -264,6 +312,96 @@ public class OwnMCAgent extends BasicMarioAIAgent implements Agent{
 			intToAction(currAction);
 		}
 		frameCounter++;
+		//if(action[Mario.KEY_RIGHT])++reward;
+		reward2 = distancePassedCells;
+		if(!firstStep)reward=distancePassedCells;
+		/**/
+		if(direction[3])++reward;
+		if(direction[2])--reward;
+		/**/
+		first = false;
 		return action;
+	}
+	
+	public boolean[] feelDirection(boolean[][][] maps) {
+		boolean[] output = {false,false,false,false};
+		boolean[] zure = {false,false,false,false,false,false,false,false};
+		//  -0+b
+		//     c
+		//- 012
+		//0 3 4
+		//+ 567
+		//ar
+		if(!first && firstStep) {
+			/*
+			int r=0;
+			int c=0;
+			for(int i=1;i<18;++i) {
+				for(int j=1;j<18;++j) {
+					if(maps[i][j][1] != (getReceptiveFieldCellValue(i,j) != 0  || getReceptiveFieldCellValue(i,j) == 2)) {
+						if(maps[i][j][1] == (getReceptiveFieldCellValue(i-1,j) != 0  || getReceptiveFieldCellValue(i-1,j) == 2))--r;
+						if(maps[i][j][1] == (getReceptiveFieldCellValue(i+1,j) != 0  || getReceptiveFieldCellValue(i+1,j) == 2))++r;
+						if(maps[i][j][1] == (getReceptiveFieldCellValue(i,j-1) != 0  || getReceptiveFieldCellValue(i,j-1) == 2))--c;
+						if(maps[i][j][1] == (getReceptiveFieldCellValue(i,j+1) != 0  || getReceptiveFieldCellValue(i,j+1) == 2))++c;
+					}
+				}
+			}
+			output[0]=r>0;
+			output[1]=r<0;
+			output[2]=c>0;
+			output[3]=c<0;
+			/**/
+			int index = 0;
+			int acceptCount=0;
+			for(int a=-1;a<2;++a) {
+				for(int b=-1;b<2;++b) {
+					if(a!=0 || b!=0) {
+						boolean fit = true;
+						for(int i=1;i<18;++i) {
+							for(int j=1;j<18;++j) {
+								if(maps[i][j][1]!=(getReceptiveFieldCellValue(i+a,j+b) != 0 && getReceptiveFieldCellValue(i+a,j+b) != 2))fit = false;
+							}
+						}
+						if(fit) {
+							zure[index]=true;
+							++acceptCount;
+						}
+						++index;
+					}
+				}
+			}
+			if(acceptCount>1) {
+				System.err.print("何かがおかしい(");
+				for(int i=0;i<8;++i) {
+					if(zure[i])System.err.print(i+" ");
+				}
+				System.err.println(")");
+				for(int i=1;i<18;++i) {
+					for(int j=1;j<18;++j) {
+						System.err.print((maps[i][j][1]?"*":"_")+((getReceptiveFieldCellValue(i,j) != 0 && getReceptiveFieldCellValue(i,j) != 2)?"*":"_"));
+						
+					}
+					System.err.println("");
+				}
+			}
+			else {
+				//System.err.println("何もおかしくない");
+				if(zure[0] || zure[1] || zure[2])output[1] = true;
+				if(zure[0] || zure[3] || zure[5])output[3] = true;
+				if(zure[2] || zure[4] || zure[7])output[2] = true;
+				if(zure[5] || zure[6] || zure[7])output[0] = true;
+			}
+		}
+		return output;
+	}
+	
+	public boolean[][][] feelMap(boolean[][][] maps) {
+		for(int i=0;i<19;++i) {
+			for(int j=0;j<19;++j) {
+				maps[i][j][0]= getEnemiesCellValue(i,j) != Sprite.KIND_NONE;
+				maps[i][j][1]= getReceptiveFieldCellValue(i,j) != 0  && getReceptiveFieldCellValue(i,j) != 2;
+			}
+		}
+		return maps;
 	}
 }
