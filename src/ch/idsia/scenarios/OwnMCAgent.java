@@ -465,6 +465,32 @@ public class OwnMCAgent extends BasicMarioAIAgent implements Agent{
 	}
 	
 	public void generateCoin() {
+		//重みづけ
+		int[][] weight=new int[19][19];
+		for(int i=18;i>=0;--i) {
+			for(int j=0;j<19;++j) {
+				if(getReceptiveFieldCellValue(i,j) != 0 && getReceptiveFieldCellValue(i,j) != 2)weight[i][j]=4096;
+				else if(i==18)weight[i][j]=256;
+				else {
+					if(getReceptiveFieldCellValue(i+1,j) != 0 && getReceptiveFieldCellValue(i+1,j) != 2)weight[i][j]=4;
+					else {
+						int min=8192;
+						if(j!=0 )if(min>weight[i+1][j-1])min=weight[i+1][j-1];
+						if(min>weight[i+1][j])min=weight[i+1][j];
+						if(j!=18)if(min>weight[i+1][j+1])min=weight[i+1][j+1];
+						weight[i][j]=min+1;
+					}
+				}
+			}
+		}
+		
+		for(int i=0;i<37;++i) {
+			for(int j=0;j<37;++j) {
+				reCoin[i][j]=false;
+			}
+		}
+		
+		//A*いくぞおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおお
 		
 	}
 }
