@@ -491,6 +491,25 @@ public class OwnMCAgent extends BasicMarioAIAgent implements Agent{
 		}
 		
 		//A*いくぞおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおおお
+		boolean[][] aList = new boolean[19][19];
+		int[][][] bList = new int[19][19][2];
+		//初期化
+		for(int i=0;i<19;++i) {
+			for(int j=0;j<19;++j) {
+				//調べた後かどうか
+				aList[i][j]=false;
+				//重みの合計
+				bList[i][j][0] = -1;
+				//前の頂点
+				bList[i][j][1] = -1;
+				//012
+				//3 4
+				//567
+			}
+		}
+		//A*
+		
+		
 		
 	}
 }
