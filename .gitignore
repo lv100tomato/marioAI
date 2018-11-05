@@ -12,3 +12,4 @@
 *.lvl
 
 *.dat
+.settings/org.eclipse.core.resources.prefs
