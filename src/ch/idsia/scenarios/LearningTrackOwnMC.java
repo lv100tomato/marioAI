@@ -30,7 +30,7 @@ public static void replay(String filename,MarioAIOptions marioAIOptions, Learnin
 	try{
 		File f = new File(filename);
 		BufferedReader br = new BufferedReader(new FileReader(f));
-		for(int i = 0; i < Math.pow(2.0, OwnMCAgent.width * 4 + 1); ++i){
+		for(int i = 0; i < OwnMCAgent.nodes; ++i){
 			for(int j = 0; j < 2; ++j){
 				for(int k = 0;k < 2; ++k){
 					for(int t = 0; t < OwnMCAgent.numOfAction; ++t){

@@ -41,7 +41,7 @@ public class LearningWithOwnMC implements LearningAgent{
 				show();
 				break;
 			}
-			if(i % 1000 == 999)
+			if(i % 10000 == 9999)
 				show();
 		}
 
@@ -50,7 +50,7 @@ public class LearningWithOwnMC implements LearningAgent{
 			File f = new File("MonteCarlo.txt");
 			f.createNewFile();
 			BufferedWriter bw = new BufferedWriter(new FileWriter(f));
-			for(int i = 0; i < Math.pow(2.0, OwnMCAgent.width * 4 + 1); ++i){
+			for(int i = 0; i < OwnMCAgent.nodes; ++i){
 				for(int j = 0; j < 2; ++j){
 					for(int k = 0;k < 2; ++k){
 						for(int t = 0; t < OwnMCAgent.numOfAction; ++t){
@@ -91,7 +91,7 @@ public class LearningWithOwnMC implements LearningAgent{
 		EvaluationInfo evaluationInfo = basicTask.getEvaluationInfo();
 		//報酬取得
 		//float reward = evaluationInfo.distancePassedPhys;
-		float reward = agent.reward/**/ - agent.reward2/**/;
+		float reward = agent.reward*3/* + agent.reward2/**/;
 		System.out.println("報酬は" + reward);
 	}
 	//学習
@@ -122,10 +122,10 @@ public class LearningWithOwnMC implements LearningAgent{
 		EvaluationInfo evaluationInfo = basicTask.getEvaluationInfo();
 		//報酬取得
 		//float reward = evaluationInfo.distancePassedPhys;
-		float reward = agent.reward;
+		float reward = agent.reward*3/* + agent.reward2/**/;
 		//reward -= (evaluationInfo.marioStatus == 0) ? 1000 : 0;
 		System.out.println(reward);
-		System.out.println("      "+(reward/**/ - agent.reward2/**/));
+		//System.out.println("      "+(reward/**/ - agent.reward2/**/));
 		//ベストスコアが出たら更新
 		if(reward > OwnMCAgent.bestScore){
 			OwnMCAgent.bestScore = reward;
@@ -142,7 +142,8 @@ public class LearningWithOwnMC implements LearningAgent{
 							/ (float)OwnMCAgent.num[key.getState()][key.getCliff()][key.getAbleToJump()][key.getAction()];
 		}
 		//return reward;
-		return evaluationInfo.distancePassedPhys;
+		return agent.reward3;
+		//return evaluationInfo.distancePassedPhys;
 	}
 	//////////////////////////////ここからは必要なし//////////////////////////////
 	@Override

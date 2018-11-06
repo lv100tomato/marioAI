@@ -59,6 +59,12 @@ public class OwnMCAgent extends BasicMarioAIAgent implements Agent{
 	
 	public static int reward = 0;
 	public static int reward2 = 0;
+	public static int reward3 = 0;
+	
+	public static int nodes = (int)Math.pow(2.0,6 * width + 1);
+	
+	public static boolean darkness = false;
+	
 	//マリオの周りの地図を保持
 	public static boolean[][][] map;
 	//報酬となるコインの位置
@@ -80,6 +86,8 @@ public class OwnMCAgent extends BasicMarioAIAgent implements Agent{
 	public static void ini(){
 		reward = 0;
 		reward2 = 0;
+		reward3 = 0;
+		darkness = false;
 		oldDistance = 0;
 		topDistance = 0;
 		firstStep=false;
@@ -123,11 +131,12 @@ public class OwnMCAgent extends BasicMarioAIAgent implements Agent{
 	//コンストラクタ
 	public OwnMCAgent(){
 		super(name);
-		qValue = new float[(int)Math.pow(2.0,4 * width + 1)][2][2][numOfAction];
-		sumValue = new float[(int)Math.pow(2.0,4 * width  + 1)][2][2][numOfAction];
-		num = new int[(int)Math.pow(2.0,4 * width + 1)][2][2][numOfAction];
+		nodes=(int)Math.pow(2.0,6 * width + 1);
+		qValue = new float[nodes][2][2][numOfAction];
+		sumValue = new float[nodes][2][2][numOfAction];
+		num = new int[nodes][2][2][numOfAction];
 		selected = new HashMap<KeyOfOwnMC,Integer>();
-		for(int i = 0; i < (int)Math.pow(2.0,4 * width + 1); ++i){
+		for(int i = 0; i < nodes; ++i){
 			for(int j = 0; j < 2; ++j){
 				for(int k = 0; k < 2; ++k){
 					for(int t = 0; t < numOfAction; ++t){
@@ -176,6 +185,7 @@ public class OwnMCAgent extends BasicMarioAIAgent implements Agent{
 	//ついでにマリオが地面にいるかも取得
 	public void detectObstacle(){
 		state = 0;
+		/*
 		for(int j = 0; j < width; ++j){
 			if(getEnemiesCellValue(marioEgoRow + j - 1,marioEgoCol + 1) != Sprite.KIND_NONE)
 				state += (int)Math.pow(2,j);
@@ -191,6 +201,23 @@ public class OwnMCAgent extends BasicMarioAIAgent implements Agent{
 		for(int j = 0; j < width; ++j){
 			if(getReceptiveFieldCellValue(marioEgoRow + j - 1,marioEgoCol + 2) != 0 && getReceptiveFieldCellValue(marioEgoRow + j - 1,marioEgoCol + 2) != 2)
 				state += (int)Math.pow(2,3 * width + j);
+		}
+		/**/
+		for(int j=0; j<width;++j) {
+			for(int k=0; k<1;++k) {
+				if(getEnemiesCellValue(marioEgoRow + j - 1,marioEgoCol + k+1) != Sprite.KIND_NONE)
+					state += (int)Math.pow(2,width * 6 * k + j);
+				if(getReceptiveFieldCellValue(marioEgoRow + j - 1,marioEgoCol + k+1) != 0 && getReceptiveFieldCellValue(marioEgoRow + j - 1,marioEgoCol + k+1) != 2)
+					state += (int)Math.pow(2,width *(6*k+1) + j);
+				if(reCoin[marioEgoRow + j - 1 + 9][marioEgoCol + k+1 + 9])
+					state += (int)Math.pow(2,width *(6*k+2) + j);
+				if(getEnemiesCellValue(marioEgoRow + j - 1,marioEgoCol - k-1) != Sprite.KIND_NONE)
+					state += (int)Math.pow(2,width *(6*k+3) + j);
+				if(getReceptiveFieldCellValue(marioEgoRow + j - 1,marioEgoCol - k-1) != 0 && getReceptiveFieldCellValue(marioEgoRow + j - 1,marioEgoCol - k-1) != 2)
+					state += (int)Math.pow(2,width *(6*k+4) + j);
+				if(reCoin[marioEgoRow + j - 1 + 9][marioEgoCol - k-1 + 9])
+					state += (int)Math.pow(2,width *(6*k+5) + j);
+			}
 		}
 		if(isMarioOnGround)
 			state += (int)Math.pow(2, 4 * width);
@@ -288,6 +315,8 @@ public class OwnMCAgent extends BasicMarioAIAgent implements Agent{
 			action[Mario.KEY_DOWN] = true;
 	}
 	public boolean[] getAction(){
+		if(distancePassedPhys < (4096.0*timeSpent)/(timeSpent+timeLeft))darkness=true;
+		
 		deltaStep=firstStep;
 		firstStep=firstStep||isMarioOnGround;
 		direction = feelDirection(map);
@@ -315,13 +344,16 @@ public class OwnMCAgent extends BasicMarioAIAgent implements Agent{
 			intToAction(currAction);
 		}
 		frameCounter++;
+		if(!darkness) {
 		//if(action[Mario.KEY_RIGHT])++reward;
 		reward2 = distancePassedCells;
+		reward3 = distancePassedPhys;
 		if(!firstStep)reward=distancePassedCells;
 		/*
 		if(direction[3])++reward;
 		if(direction[2])--reward;
 		/**/
+		}
 		first = false;
 		return action;
 	}
@@ -460,7 +492,7 @@ public class OwnMCAgent extends BasicMarioAIAgent implements Agent{
 		}
 		if(reCoin[18][18]) {
 			generateCoin();
-			++reward;
+			if(!darkness)++reward;
 		}
 	}
 	
@@ -469,8 +501,10 @@ public class OwnMCAgent extends BasicMarioAIAgent implements Agent{
 		int[][] weight=new int[19][19];
 		for(int i=18;i>=0;--i) {
 			for(int j=0;j<19;++j) {
+				//地面かどうか
 				if(getReceptiveFieldCellValue(i,j) != 0 && getReceptiveFieldCellValue(i,j) != 2)weight[i][j]=4096;
-				else if(i==18)weight[i][j]=256;
+				//下が虚無かどうか
+				else if(i==18)weight[i][j]=1024;
 				else {
 					if(getReceptiveFieldCellValue(i+1,j) != 0 && getReceptiveFieldCellValue(i+1,j) != 2)weight[i][j]=4;
 					else {
@@ -478,6 +512,7 @@ public class OwnMCAgent extends BasicMarioAIAgent implements Agent{
 						if(j!=0 )if(min>weight[i+1][j-1])min=weight[i+1][j-1];
 						if(min>weight[i+1][j])min=weight[i+1][j];
 						if(j!=18)if(min>weight[i+1][j+1])min=weight[i+1][j+1];
+						if(min==10)min=40;
 						weight[i][j]=min+1;
 					}
 				}
@@ -500,16 +535,134 @@ public class OwnMCAgent extends BasicMarioAIAgent implements Agent{
 				aList[i][j]=false;
 				//重みの合計
 				bList[i][j][0] = -1;
-				//前の頂点
+				//前の頂点の方向
 				bList[i][j][1] = -1;
 				//012
-				//3 4
-				//567
+				//3 5
+				//678
 			}
 		}
+		bList[9][9][0]=0;
+		
 		//A*
+		//移動するときに通りそうなマスの重みの平均を枝の重みとする
+		//マリオの位置(r.c)と(r-1,c)をマリオの占めるスペースとする
+		//ゴールは右上端
+		//一番右とのy座標が小さいほど軽くする(1マスあたり3)
+		while(true) {
+			//調べる頂点を選ぶ
+			int[] exam = {-1,-1, -1};
+			//             x, y,重み
+			for(int i=0;i<19;++i) {
+				for(int j=0;j<19;++j) {
+					//重みが既にわかっている かつ 調べ終わった後でない
+					if(bList[i][j][0]!=-1 && !aList[i][j]) {
+						//今のマスがより軽ければ置き換え
+						if(exam[2] == -1 || exam[2]+(18-exam[1])*3 > bList[i][j][0]+(18-j)*3) {
+							exam[0]=i;
+							exam[1]=j;
+							exam[2]=bList[i][j][0];
+						}
+					}
+				}
+			}
+			
+			//もし選んだ頂点が右上端なら終了
+			if(exam[0]==0 && exam[1]==18)break;
+			
+			//周りのマスに操作
+			int w=bList[exam[0]][exam[1]][0];
+			for(int i=-1;i<2;++i) {
+				for(int j=-1;j<2;++j) {
+					//自身のマスは調べない
+					if(i!=0 || j!=0) {
+						//配列外のマスは調べない
+						if(exam[0]+i>=0 && exam[0]+i<19 && exam[1]+j>=0 && exam[1]+j<19) {
+							int sumw=0;
+							if(i!=1) {
+								sumw = w + boxAverageForAStar(weight,exam[0]+i-1,exam[1]+j,exam[0],exam[1]);
+							}else{
+								sumw = w + boxAverageForAStar(weight,exam[0]+i,exam[1]+j,exam[0]-1,exam[1])/2;
+							}
+							//既にあるものよりも軽ければ入れ替え
+							if(bList[exam[0]+i][exam[1]+j][0] == -1 || bList[exam[0]+i][exam[1]+j][0] > sumw) {
+								bList[exam[0]+i][exam[1]+j][0] = sumw;
+								bList[exam[0]+i][exam[1]+j][1] = (1-i)*3+1-j;
+							}
+						}
+					}
+				}
+			}
+			//操作済みにする
+			aList[exam[0]][exam[1]]=true;
+		}
 		
+		//右上端から辿ってコインを置いていく
+		int nowR=0;
+		int nowC=18;
+		/**/
+		boolean[][] route = new boolean[19][19];
+		for(int i=0;i<19;++i) {
+			for(int j=0;j<19;++j) {
+				route[i][j]=false;
+			}
+		}
+		/**/
+		while(true) {
+			/**/
+			route[nowR][nowC]=true;
+			/**/
+			if(nowR==9 && nowC==9)break;
+			reCoin[9+nowR][9+nowC]=true;
+			if(bList[nowR][nowC][1]<0)System.err.println("もう後戻りはできない");
+			int nextR= nowR + bList[nowR][nowC][1]/3 - 1;
+			int nextC= nowC + bList[nowR][nowC][1]%3 - 1;
+			nowR = nextR;
+			nowC = nextC;
+		}
+		/*
+		for(int i=0;i<19;++i) {
+			for(int j=0;j<19;++j) {
+				String a = "";
+				if(route[i][j])a="0";
+				else a=".";
+				System.out.print(a);
+			}
+			System.out.println("");
+		}
+		System.out.println("");
+		/**/
+		return;
+	}
+	
+	private int boxAverageForAStar(int[][] weight,int sx,int sy,int ex,int ey){
+		if(sx>ex) {
+			int swap=sx;
+			sx=ex;
+			ex=swap;
+		}
+		if(sy>ey) {
+			int swap=sy;
+			sy=ey;
+			ey=swap;
+		}
 		
-		
+		float sum=0;
+		int num=0;
+		for(int i=sx;i<=ex;++i) {
+			for(int j=sy;j<=ey;++j) {
+				++num;
+				sum+=safelyPickUp(weight,i,j,1024);
+			}
+		}
+		return (int)(sum/num);
+	}
+	
+	private int safelyPickUp(int[][] numbers,int x,int y,int def) {
+		if(x<0 || x>=numbers.length || y<0 || y>=numbers[0].length) {
+			return def;
+		}else {
+			return numbers[x][y];
+		}
 	}
 }

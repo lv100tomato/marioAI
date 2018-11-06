@@ -113,12 +113,19 @@ public boolean[] getAction()
 	else --trueSpeedCounter;
 	
 	jumpWatcher = (oldJump != action[Mario.KEY_JUMP]);
-	
+	/*
 	if(isObstacle(marioEgoRow, marioEgoCol)) {
 		action[Mario.KEY_UP] = true;
 		action[Mario.KEY_JUMP] = true;
 	}else {
 		action[Mario.KEY_UP] = false;
+	}
+	/**/
+	if(getReceptiveFieldCellValue(marioEgoRow,marioEgoCol)!=0) {
+		action[Mario.KEY_UP]=true;
+	}else {
+
+		action[Mario.KEY_UP]=false;
 	}
 	
 	//action[Mario.KEY_UP] = trueJumpCounter > 8;	//MAX JUMP
