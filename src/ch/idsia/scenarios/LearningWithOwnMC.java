@@ -20,13 +20,13 @@ import ch.idsia.agents.LearningAgent;
 
 public class LearningWithOwnMC implements LearningAgent{
 	//private Agent agent;
-	private OwnMCAgent agent;
+	public OwnMCAgent agent;
 	private String name = "LearningWithOwnMC";
 	//目標値(4096.0はステージの右端)
 	private float goal = 4096.0f;
 	private String args;
 	//試行回数
-	private int numOfTrial = 50000;
+	private int numOfTrial = 500000;
 	//コンストラクタ
 	public LearningWithOwnMC(String args){
 		this.args = args;
@@ -35,13 +35,15 @@ public class LearningWithOwnMC implements LearningAgent{
 	//学習部分
 	//1000回学習してその中でもっとも良かったものをリプレイ
 	public void learn(){
-		for(int i = 0; i < numOfTrial; ++i){
+		for(int i = 0;/* i < numOfTrial/**/true; ++i){
 			//目標値までマリオが到達したらshowして終了
 			if(run() >= 4096.0f){
+				//System.out.println("utai:"+OwnMCAgent.qValue[0][0][0][0]);
 				show();
+				//System.out.println("atai:"+OwnMCAgent.qValue[0][0][0][0]);
 				break;
 			}
-			if(i % 10000 == 9999)
+			if(/*i % 10000 == 9999/**/false)
 				show();
 		}
 
@@ -50,6 +52,8 @@ public class LearningWithOwnMC implements LearningAgent{
 			File f = new File("MonteCarlo.txt");
 			f.createNewFile();
 			BufferedWriter bw = new BufferedWriter(new FileWriter(f));
+			//System.out.println("itai:"+OwnMCAgent.qValue[0][0][0][0]);
+			/*
 			for(int i = 0; i < OwnMCAgent.nodes; ++i){
 				for(int j = 0; j < 2; ++j){
 					for(int k = 0;k < 2; ++k){
@@ -59,7 +63,14 @@ public class LearningWithOwnMC implements LearningAgent{
 						}
 					}
 				}
+			}/**/
+			bw.write(String.valueOf(OwnMCAgent.best.size()));
+			bw.newLine();
+			for(int i=0; i < OwnMCAgent.best.size(); ++i) {
+				bw.write(String.valueOf(OwnMCAgent.best.get(i)));
+				bw.newLine();
 			}
+			bw.close();
 		}
 		catch(IOException e){
 		    System.out.println(e);
@@ -75,7 +86,7 @@ public class LearningWithOwnMC implements LearningAgent{
 		marioAIOptions.setArgs(this.args);
 		OwnMCAgent.setMode(true);
 
-
+		//System.out.println(OwnMCAgent.qValue[0][0][0][0]);
 	    /* プレイ画面出力するか否か */
 	    marioAIOptions.setVisualization(true);
 		/* MCAgentをセット */
@@ -91,7 +102,7 @@ public class LearningWithOwnMC implements LearningAgent{
 		EvaluationInfo evaluationInfo = basicTask.getEvaluationInfo();
 		//報酬取得
 		//float reward = evaluationInfo.distancePassedPhys;
-		float reward = agent.reward*3/* + agent.reward2/**/;
+		float reward = agent.reward*3/**/ + agent.reward2/**/;
 		System.out.println("報酬は" + reward);
 	}
 	//学習
@@ -122,7 +133,7 @@ public class LearningWithOwnMC implements LearningAgent{
 		EvaluationInfo evaluationInfo = basicTask.getEvaluationInfo();
 		//報酬取得
 		//float reward = evaluationInfo.distancePassedPhys;
-		float reward = agent.reward*3/* + agent.reward2/**/;
+		float reward = agent.reward*3/**/ + agent.reward2/**/;
 		//reward -= (evaluationInfo.marioStatus == 0) ? 1000 : 0;
 		System.out.println(reward);
 		//System.out.println("      "+(reward/**/ - agent.reward2/**/));

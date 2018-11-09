@@ -43,7 +43,7 @@ public static void main(String[] args)
     final MarioAIOptions marioAIOptions = new MarioAIOptions(args);
 
     final Agent agent = new IgnoreObstacleAgent();
-    marioAIOptions.setAgent(agent);
+    //marioAIOptions.setAgent(agent);
 
     marioAIOptions.setArgs("-lco off -lb on -le off -lhb off -lg on -ltb on -lhs off -lca on -lde on -ld 5 -ls 133829");
     

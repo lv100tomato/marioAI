@@ -165,7 +165,6 @@ public static void main(String[] args){
 	evaluateSubmission(marioAIOptions,learningAgent);
 	//replay("MonteCarloMainTask3.txt",marioAIOptions,(LearningWithMC2)learningAgent);
 
-
 	/* 学習するステージを生成 */
 
 	/*------ Level 0 ------*/

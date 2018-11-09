@@ -61,7 +61,7 @@ public class OwnMCAgent extends BasicMarioAIAgent implements Agent{
 	public static int reward2 = 0;
 	public static int reward3 = 0;
 	
-	public static int nodes = (int)Math.pow(2.0,6 * width + 1);
+	public static final int nodes = (int)Math.pow(2.0,6 * width + 1);
 	
 	public static boolean darkness = false;
 	
@@ -131,7 +131,7 @@ public class OwnMCAgent extends BasicMarioAIAgent implements Agent{
 	//コンストラクタ
 	public OwnMCAgent(){
 		super(name);
-		nodes=(int)Math.pow(2.0,6 * width + 1);
+		//nodes=(int)Math.pow(2.0,6 * width + 1);
 		qValue = new float[nodes][2][2][numOfAction];
 		sumValue = new float[nodes][2][2][numOfAction];
 		num = new int[nodes][2][2][numOfAction];
@@ -148,6 +148,7 @@ public class OwnMCAgent extends BasicMarioAIAgent implements Agent{
 				}
 			}
 		}
+		//System.out.println(OwnMCAgent.qValue[0][0][0][0]);
 		actions = new ArrayList<Integer>();
 		best = new ArrayList<Integer>();
 		

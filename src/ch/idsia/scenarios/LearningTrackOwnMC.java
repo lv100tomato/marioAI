@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import ch.idsia.agents.Agent;
 import ch.idsia.agents.LearningAgent;
@@ -30,6 +31,7 @@ public static void replay(String filename,MarioAIOptions marioAIOptions, Learnin
 	try{
 		File f = new File(filename);
 		BufferedReader br = new BufferedReader(new FileReader(f));
+		/*
 		for(int i = 0; i < OwnMCAgent.nodes; ++i){
 			for(int j = 0; j < 2; ++j){
 				for(int k = 0;k < 2; ++k){
@@ -40,11 +42,24 @@ public static void replay(String filename,MarioAIOptions marioAIOptions, Learnin
 					}
 				}
 			}
+		}/**/
+		OwnMCAgent.best = new ArrayList<Integer>();
+		String s = br.readLine();
+		if(s != null) {
+			int size = Integer.parseInt(s);
+			//System.out.println("uncho");
+			for(int i=0; i < size; ++i) {
+				s = br.readLine();
+				if(s != null)OwnMCAgent.best.add(Integer.parseInt(s));
+				//System.out.println("unko");
+			}
 		}
+		br.close();
 	}
 	catch(IOException e){
 	    System.out.println(e);
 	}
+	System.out.println(OwnMCAgent.best.get(0));
 	learningAgent.show();
 }
 
@@ -147,13 +162,13 @@ public static void main(String[] args){
 
 	/* 学習に用いるAgentを指定 */
 	/* MainTask4_1.java */
-	LearningAgent learningAgent = new LearningWithOwnMC("-lde on -i on -ltb off -ld 2 -ls 0 -le g");
+	//LearningAgent learningAgent = new LearningWithOwnMC("-lde on -ltb off -ld 2 -ls 0 -le g");
 	
 	/* MainTask4_2.java */
-	// LearningAgent learningAgent = new LearningWithMC("-lco off -lb on -le off -lhb off -lg on -ltb on -lhs off -lca on -lde on -ld 5 -ls 133829");
+	 LearningAgent learningAgent = new LearningWithOwnMC("-lco off -lb on -le off -lhb off -lg on -ltb on -lhs off -lca on -lde on -ld 5 -ls 133829");
 	
 	/* MainTask4_3.java */
-	// LearningAgent learningAgent = new LearningWithMC("-lde on -i off -ld 30 -ls 133434 -lhb on");
+	// LearningAgent learningAgent = new LearningWithOwnMC("-lde on -i off -ld 30 -ls 133434 -lhb on");
 
 	System.out.println("main.learningAgent = " + learningAgent);
 
@@ -161,7 +176,7 @@ public static void main(String[] args){
 	MarioAIOptions marioAIOptions = new MarioAIOptions(args);
 	//LearningAgent learningAgent = new MLPESLearningAgent(); // Learning track competition entry goes here
 	evaluateSubmission(marioAIOptions,learningAgent);
-	//replay("MonteCarloMainTask3.txt",marioAIOptions,(LearningWithMC2)learningAgent);
+	//replay("MonteCarlo.txt",marioAIOptions,(LearningWithOwnMC)learningAgent);
 
 
 	/* 学習するステージを生成 */
