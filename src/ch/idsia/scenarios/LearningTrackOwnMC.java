@@ -165,10 +165,10 @@ public static void main(String[] args){
 	//LearningAgent learningAgent = new LearningWithOwnMC("-lde on -ltb off -ld 2 -ls 0 -le g");
 	
 	/* MainTask4_2.java */
-	 LearningAgent learningAgent = new LearningWithOwnMC("-lco off -lb on -le off -lhb off -lg on -ltb on -lhs off -lca on -lde on -ld 5 -ls 133829");
+	// LearningAgent learningAgent = new LearningWithOwnMC("-lco off -lb on -le off -lhb off -lg on -ltb on -lhs off -lca on -lde on -ld 5 -ls 133829");
 	
 	/* MainTask4_3.java */
-	// LearningAgent learningAgent = new LearningWithOwnMC("-lde on -i off -ld 30 -ls 133434 -lhb on");
+	 LearningAgent learningAgent = new LearningWithOwnMC("-lde on -i off -ld 30 -ls 133434 -lhb on");
 
 	System.out.println("main.learningAgent = " + learningAgent);
 
@@ -176,7 +176,7 @@ public static void main(String[] args){
 	MarioAIOptions marioAIOptions = new MarioAIOptions(args);
 	//LearningAgent learningAgent = new MLPESLearningAgent(); // Learning track competition entry goes here
 	evaluateSubmission(marioAIOptions,learningAgent);
-	//replay("MonteCarlo.txt",marioAIOptions,(LearningWithOwnMC)learningAgent);
+	//replay("MonteCarloSuccess4-2.txt",marioAIOptions,(LearningWithOwnMC)learningAgent);
 
 
 	/* 学習するステージを生成 */
